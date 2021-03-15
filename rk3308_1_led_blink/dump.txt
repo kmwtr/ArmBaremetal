@@ -1,0 +1,118 @@
+
+main.elf:     file format elf64-littleaarch64
+
+
+Disassembly of section .start:
+
+00000000fff80000 <_start>:
+    fff80000:	33334b52 	.inst	0x33334b52 ; undefined
+    fff80004:	14000003 	b	fff80010 <init>
+
+Disassembly of section .init:
+
+00000000fff80010 <init>:
+    fff80010:	aa1f03e0 	mov	x0, xzr
+    fff80014:	aa1f03e1 	mov	x1, xzr
+    fff80018:	aa1f03e2 	mov	x2, xzr
+    fff8001c:	aa1f03e3 	mov	x3, xzr
+    fff80020:	aa1f03e4 	mov	x4, xzr
+    fff80024:	aa1f03e5 	mov	x5, xzr
+    fff80028:	aa1f03e6 	mov	x6, xzr
+    fff8002c:	aa1f03e7 	mov	x7, xzr
+    fff80030:	aa1f03e8 	mov	x8, xzr
+    fff80034:	aa1f03e9 	mov	x9, xzr
+    fff80038:	aa1f03ea 	mov	x10, xzr
+    fff8003c:	aa1f03eb 	mov	x11, xzr
+    fff80040:	aa1f03ec 	mov	x12, xzr
+    fff80044:	aa1f03ed 	mov	x13, xzr
+    fff80048:	aa1f03ee 	mov	x14, xzr
+    fff8004c:	aa1f03ef 	mov	x15, xzr
+    fff80050:	aa1f03f0 	mov	x16, xzr
+    fff80054:	aa1f03f1 	mov	x17, xzr
+    fff80058:	aa1f03f2 	mov	x18, xzr
+    fff8005c:	aa1f03f3 	mov	x19, xzr
+    fff80060:	aa1f03f4 	mov	x20, xzr
+    fff80064:	aa1f03f5 	mov	x21, xzr
+    fff80068:	aa1f03f6 	mov	x22, xzr
+    fff8006c:	aa1f03f7 	mov	x23, xzr
+    fff80070:	aa1f03f8 	mov	x24, xzr
+    fff80074:	aa1f03f9 	mov	x25, xzr
+    fff80078:	aa1f03fa 	mov	x26, xzr
+    fff8007c:	aa1f03fb 	mov	x27, xzr
+    fff80080:	aa1f03fc 	mov	x28, xzr
+    fff80084:	aa1f03fd 	mov	x29, xzr
+    fff80088:	aa1f03fe 	mov	x30, xzr
+    fff8008c:	d51e115f 	msr	cptr_el3, xzr
+    fff80090:	d51c115f 	msr	cptr_el2, xzr
+    fff80094:	9e6703e0 	fmov	d0, xzr
+    fff80098:	9e6703e1 	fmov	d1, xzr
+    fff8009c:	9e6703e2 	fmov	d2, xzr
+    fff800a0:	9e6703e3 	fmov	d3, xzr
+    fff800a4:	9e6703e4 	fmov	d4, xzr
+    fff800a8:	9e6703e5 	fmov	d5, xzr
+    fff800ac:	9e6703e6 	fmov	d6, xzr
+    fff800b0:	9e6703e7 	fmov	d7, xzr
+    fff800b4:	9e6703e8 	fmov	d8, xzr
+    fff800b8:	9e6703e9 	fmov	d9, xzr
+    fff800bc:	9e6703ea 	fmov	d10, xzr
+    fff800c0:	9e6703eb 	fmov	d11, xzr
+    fff800c4:	9e6703ec 	fmov	d12, xzr
+    fff800c8:	9e6703ed 	fmov	d13, xzr
+    fff800cc:	9e6703ee 	fmov	d14, xzr
+    fff800d0:	9e6703ef 	fmov	d15, xzr
+    fff800d4:	9e6703f0 	fmov	d16, xzr
+    fff800d8:	9e6703f1 	fmov	d17, xzr
+    fff800dc:	9e6703f2 	fmov	d18, xzr
+    fff800e0:	9e6703f3 	fmov	d19, xzr
+    fff800e4:	9e6703f4 	fmov	d20, xzr
+    fff800e8:	9e6703f5 	fmov	d21, xzr
+    fff800ec:	9e6703f6 	fmov	d22, xzr
+    fff800f0:	9e6703f7 	fmov	d23, xzr
+    fff800f4:	9e6703f8 	fmov	d24, xzr
+    fff800f8:	9e6703f9 	fmov	d25, xzr
+    fff800fc:	9e6703fa 	fmov	d26, xzr
+    fff80100:	9e6703fb 	fmov	d27, xzr
+    fff80104:	9e6703fc 	fmov	d28, xzr
+    fff80108:	9e6703fd 	fmov	d29, xzr
+    fff8010c:	9e6703fe 	fmov	d30, xzr
+    fff80110:	9e6703ff 	fmov	d31, xzr
+    fff80114:	140000bb 	b	fff80400 <main>
+
+Disassembly of section .main:
+
+00000000fff80400 <main>:
+    fff80400:	d2800085 	mov	x5, #0x4                   	// #4
+    fff80404:	f2bfe445 	movk	x5, #0xff22, lsl #16
+    fff80408:	d2bfe444 	mov	x4, #0xff220000            	// #4280418304
+    fff8040c:	52800040 	mov	w0, #0x2                   	// #2
+    fff80410:	d10043ff 	sub	sp, sp, #0x10
+    fff80414:	aa0403e2 	mov	x2, x4
+    fff80418:	2a0003e3 	mov	w3, w0
+    fff8041c:	b90000a0 	str	w0, [x5]
+    fff80420:	528847e1 	mov	w1, #0x423f                	// #16959
+    fff80424:	72a001e1 	movk	w1, #0xf, lsl #16
+    fff80428:	b9000080 	str	w0, [x4]
+    fff8042c:	d503201f 	nop
+    fff80430:	b9000fff 	str	wzr, [sp, #12]
+    fff80434:	b9400fe0 	ldr	w0, [sp, #12]
+    fff80438:	6b01001f 	cmp	w0, w1
+    fff8043c:	540000e8 	b.hi	fff80458 <main+0x58>  // b.pmore
+    fff80440:	b9400fe0 	ldr	w0, [sp, #12]
+    fff80444:	11000400 	add	w0, w0, #0x1
+    fff80448:	b9000fe0 	str	w0, [sp, #12]
+    fff8044c:	b9400fe0 	ldr	w0, [sp, #12]
+    fff80450:	6b01001f 	cmp	w0, w1
+    fff80454:	54ffff69 	b.ls	fff80440 <main+0x40>  // b.plast
+    fff80458:	b9000043 	str	w3, [x2]
+    fff8045c:	b9000fff 	str	wzr, [sp, #12]
+    fff80460:	b9400fe0 	ldr	w0, [sp, #12]
+    fff80464:	6b01001f 	cmp	w0, w1
+    fff80468:	540000e8 	b.hi	fff80484 <main+0x84>  // b.pmore
+    fff8046c:	b9400fe0 	ldr	w0, [sp, #12]
+    fff80470:	11000400 	add	w0, w0, #0x1
+    fff80474:	b9000fe0 	str	w0, [sp, #12]
+    fff80478:	b9400fe0 	ldr	w0, [sp, #12]
+    fff8047c:	6b01001f 	cmp	w0, w1
+    fff80480:	54ffff69 	b.ls	fff8046c <main+0x6c>  // b.plast
+    fff80484:	b900005f 	str	wzr, [x2]
+    fff80488:	17ffffea 	b	fff80430 <main+0x30>
