@@ -18,7 +18,7 @@
 // Software SPI 作るぞ～
 // =======================================
 // 雑Delay用
-#define Kiro    1000
+#define Kilo    1000
 #define Mega    1000000
 
 #define SPI_MISO        6       // GPIO1_C6 ... JTAG TCK
