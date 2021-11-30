@@ -1,19 +1,37 @@
 #include <common.h>
 #include <exports.h>
 
+// Chapter 30 General Register Files (GRF)
+// =======================================
+// Operational Base
+#define GRF_BASE    0xFF000000
+// GRF_GPIO1C_IOMUX_H は 0b'0100'0100'0000 (UART2_TX_M0, UART2_RX_M0) でリセットされている。
+// そのためこれを編集しないとGPIO1_C7,C6が使えない。
+#define GRF_GPIO1C_IOMUX_L  0xFF000030
+#define GRF_GPIO1C_IOMUX_H  0xFF000034
+// プルアップは直さなくてもいけた。
+//#define GRF_GPIO1C_P        0xFF0000b8
+
 // Operational Base
 // =======================================
-#define GPIO0   0xff220000
-#define GPIO1   0xff230000
-#define GPIO2   0xff240000
-#define GPIO3   0xff250000
-#define GPIO4   0xff260000
+#define GPIO0_BASE  0xff220000
+#define GPIO1_BASE  0xff230000
+#define GPIO2_BASE  0xff240000
+#define GPIO3_BASE  0xff250000
+#define GPIO4_BASE  0xff260000
 
 // Chapter 22 GPIO
 // =======================================
 #define GPIO_SWPORTA_DR     0x0000      // Port A data register 
 #define GPIO_SWPORTA_DDR    0x0004      // Port A data direction register
-// Port A > GPIO > [0:3] > [A:D] という階層。GPIOのPortはすべてAで、その中にピンA~Dがある。
+// [注意] Port A > GPIO > [0:3] > [A:D] という階層。GPIOのPortはすべてAで、その中にピンA~Dがある。
+
+// これでいいんだっけ
+#define GPIO0_DR    0xff220000
+#define GPIO0_DDR   0xff220004
+
+#define GPIO1_DR    0xff230000
+#define GPIO1_DDR   0xff230004
 
 // Software SPI 作るぞ～
 // =======================================
@@ -43,24 +61,45 @@ int hello_world (int argc, char * const argv[])
 
     // -----------------------------------
 
+    // 0. GRF
+    unsigned int* GPIO1_C_IOMUX_H = (unsigned int*)GRF_GPIO1C_IOMUX_H;
+    *(unsigned int *)GPIO1_C_IOMUX_H =  0b11111111111111110000000000000000; // [31:16] write_enable ビットを忘れずに。
+    //unsigned int* GPIO1_C_STATE = (unsigned int*)GRF_GPIO1C_P;
+    //*(unsigned int *)GPIO1_C_STATE =    0b11111111111111110000000000000000; 
+
     // 1. Set GPIO direction (Output)
-    unsigned int* GPIO0A_DIR = (unsigned int*)0xff220004;
-    *(unsigned int *)GPIO0A_DIR = 0b10;
+    // LED
+    unsigned int* GPIO0_A_DIR = (unsigned int*)GPIO0_DDR;
+    *(unsigned int *)GPIO0_A_DIR = 0b10;
+
+    // テスト Software SPI 予定ピン
+    unsigned int* GPIO1_C_DIR = (unsigned int*)GPIO1_DDR;
+    *(unsigned int *)GPIO1_C_DIR = 0b11110000000000000000000000; // 0b 11 10000000 00000000 00000000
 
     // 2. Set GPIO level (ON!)
-    unsigned int* GPIO0A_DAT = (unsigned int*)0xff220000;
-    *(unsigned int *)GPIO0A_DAT = 0b10;
+    // LED
+    unsigned int* GPIO0_A_DAT = (unsigned int*)GPIO0_DR;
+    *(unsigned int *)GPIO0_A_DAT = 0b10;
+
+    // テスト Software SPI 予定ピン
+    unsigned int* GPIO1_C_DAT = (unsigned int*)GPIO1_DR;
+    *(unsigned int *)GPIO1_C_DAT = 0b11110000000000000000000000;
+
+    // U-boot がSPIをイニシャライズしてるはずだから競合してるっぽい?
 
     // 3. Blink!
     volatile unsigned int d;
 
     printf ("Hit any key to exit ... ");
+
     while (!tstc())
     {
         for(d = 0; d < (102*Mega); d++);       // 無理やりDelay
-        *(unsigned int *)GPIO0A_DAT = 0b10;     // ON
+        *(unsigned int *)GPIO0_A_DAT = 0b10;     // ON
+        *(unsigned int *)GPIO1_C_DAT = 0b11110000000000000000000000;     // ON
         for(d = 0; d < (102*Mega); d++);       // 無理やりDelay
-        *(unsigned int *)GPIO0A_DAT = 0b00;     // OFF
+        *(unsigned int *)GPIO0_A_DAT = 0b00;     // OFF
+        *(unsigned int *)GPIO1_C_DAT = 0b00000000000000000000000000;     // OFF
     }
     
     /* consume input */
