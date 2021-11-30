@@ -24,7 +24,7 @@
 // =======================================
 #define GPIO_SWPORTA_DR     0x0000      // Port A data register 
 #define GPIO_SWPORTA_DDR    0x0004      // Port A data direction register
-// [注意] Port A > GPIO > [0:3] > [A:D] という階層。GPIOのPortはすべてAで、その中にピンA~Dがある。
+// [注意] Port A > GPIO > [0:3] > [A:D] ... GPIOのPortはすべてAで、その中にピンA~Dがある。
 
 // これでいいんだっけ
 #define GPIO0_DR    0xff220000
@@ -35,14 +35,15 @@
 
 // Software SPI 作るぞ～
 // =======================================
-// 雑Delay用
-#define Kilo    1000
-#define Mega    1000000
 
 #define SPI_MISO        6       // GPIO1_C6 ... JTAG TCK
 #define SPI_MOSI        7       // GPIO1_C7 ... JTAG TMS
 #define SPI_CLK         0       // GPIO1_D0
 #define SPI_CSN         1       // GPIO1_D1
+
+// 雑Delay用
+#define Kilo    1000
+#define Mega    1000000
 
 int hello_world (int argc, char * const argv[])
 {
@@ -61,7 +62,7 @@ int hello_world (int argc, char * const argv[])
 
     // -----------------------------------
 
-    // 0. GRF
+    // 0. GRF Settings
     unsigned int* GPIO1_C_IOMUX_H = (unsigned int*)GRF_GPIO1C_IOMUX_H;
     *(unsigned int *)GPIO1_C_IOMUX_H =  0b11111111111111110000000000000000; // [31:16] write_enable ビットを忘れずに。
     //unsigned int* GPIO1_C_STATE = (unsigned int*)GRF_GPIO1C_P;
@@ -84,8 +85,6 @@ int hello_world (int argc, char * const argv[])
     // テスト Software SPI 予定ピン
     unsigned int* GPIO1_C_DAT = (unsigned int*)GPIO1_DR;
     *(unsigned int *)GPIO1_C_DAT = 0b11110000000000000000000000;
-
-    // U-boot がSPIをイニシャライズしてるはずだから競合してるっぽい?
 
     // 3. Blink!
     volatile unsigned int d;
