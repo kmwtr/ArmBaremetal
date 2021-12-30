@@ -138,6 +138,7 @@ int hello_world (int argc, char * const argv[])
 
     // Step.3 Win1
     unsigned int*       VOP_WIN0_CTRL0 = (unsigned int*)VOP_LITE_WIN0_CTRL0;
+    //*(unsigned int *)   VOP_WIN0_CTRL0 = 0x00040001; //
     *(unsigned int *)   VOP_WIN0_CTRL0 = 0x00041001; // RB swap
 /*
     unsigned int*       VOP_WIN1_CTRL0 = (unsigned int*)VOP_LITE_WIN1_CTRL0;
@@ -149,12 +150,11 @@ int hello_world (int argc, char * const argv[])
     unsigned int*       VOP_WIN0_YRGB_MST0 = (unsigned int*)VOP_LITE_WIN0_YRGB_MST0;
     *(unsigned int *)   VOP_WIN0_YRGB_MST0 = 0x00c00800; // framebuffer address
     unsigned int*       VOP_WIN0_VIR = (unsigned int*)VOP_LITE_WIN0_VIR;
-    *(unsigned int *)   VOP_WIN0_VIR = 0x0000F0; // 480 px 正しいぽい
-    //*(unsigned int *)   VOP_WIN0_VIR = 0x0001E0; // 480 px 正しいぽい
+    *(unsigned int *)   VOP_WIN0_VIR = 0x0001E0; // 480 px 正しいぽい
     unsigned int*       VOP_WIN0_ACT_INFO = (unsigned int*)VOP_LITE_WIN0_ACT_INFO;
-    *(unsigned int *)   VOP_WIN0_ACT_INFO = 0x01DF01DF; // 479 479
+    *(unsigned int *)   VOP_WIN0_ACT_INFO = 0x01DF01EF; // 479 495 えっこれ大きいほうがいいの？！？！
     unsigned int*       VOP_WIN0_DSP_INFO = (unsigned int*)VOP_LITE_WIN0_DSP_INFO;
-    *(unsigned int *)   VOP_WIN0_DSP_INFO = 0x01DF01DF; // 479 479
+    *(unsigned int *)   VOP_WIN0_DSP_INFO = 0x01DF01EF; // 479 495 えっこれ大きいほうがいいの？！？！
     unsigned int*       VOP_WIN0_DSP_ST = (unsigned int*)VOP_LITE_WIN0_DSP_ST;
     *(unsigned int *)   VOP_WIN0_DSP_ST = 0x00120050; // 18px 80px
     //*(unsigned int *)   VOP_WIN0_DSP_ST = 0x000F0050; // 15px 80px
@@ -242,7 +242,8 @@ int hello_world (int argc, char * const argv[])
     sspi_9bit(COMM, 0x11); // Sleep Out
 
     sspi_9bit(COMM, 0x3A); // COLMOD
-    sspi_9bit(DATA, 0x50); // 16bit color
+    sspi_9bit(DATA, 0x60); // 18bit color VIPF:110
+    //sspi_9bit(DATA, 0x50); // 16bit color
     //sspi_9bit(DATA, 0x70); // 24bit color
 
     zatsuDelay(1000);
@@ -273,6 +274,9 @@ int hello_world (int argc, char * const argv[])
     sspi_9bit(DATA, 0x08); // RTNI[4:0] 0x8 == 0b1000, PCLK == (8 * 16) + 512 == 640
     //sspi_9bit(DATA, 0x00); // RTNI[4:0] 0x8 == 0b1000, PCLK == (0 * 16) + 512 == 512
     // RTNI: Minimum number of pclk in each line
+
+    //sspi_9bit(COMM, 0xCD); // COLCTRL
+    //sspi_9bit(DATA, 0x00); // MDT
 
     //sspi_9bit(COMM, 0xC3); // RGBCTRL
     //sspi_9bit(DATA, 0x00); // 
@@ -543,4 +547,3 @@ int hello_world (int argc, char * const argv[])
 
 // 12.2.24 Display OFF
 //sspi_9bit(COMM, 0x28);
-
