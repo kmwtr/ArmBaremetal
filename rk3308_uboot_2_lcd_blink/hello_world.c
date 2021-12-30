@@ -91,21 +91,26 @@ int hello_world (int argc, char * const argv[])
     unsigned int*       GRF_GPIO_1D_SR = (unsigned int*)GRF_GPIO1D_SR;
     *(unsigned int *)   GRF_GPIO_1D_SR = 0x030003;                      // HighSpeed
 
+
     // VOP
     // -------------------------------------------------------------------------
     
-    // dclk_vop_frac_div_con
+    // Step.0 Clock
     unsigned int*       CRU_CLKSEL_CON_8 = (unsigned int*)CRU_CLKSEL_CON8;
-    *(unsigned int *)   CRU_CLKSEL_CON_8 = 0xFFFF0011; // dclk_vop = 270 (17+1)
-    //unsigned int*       CRU_CLKSEL_CON_9 = (unsigned int*)CRU_CLKSEL_CON9;
-    //*(unsigned int *)   CRU_CLKSEL_CON_9 = 0x00010009; // 1/2 
+    // そもそも270ではない。あくまで限界値
+    //*(unsigned int *)   CRU_CLKSEL_CON_8 = 0xFFFF0023; // dclk_vop = 270MHz/(35+1) = 7.5MHz
+    //*(unsigned int *)   CRU_CLKSEL_CON_8 = 0xFFFF000D; // dclk_vop = 270MHz/(13+1) = 19.28MHz
+    //*(unsigned int *)   CRU_CLKSEL_CON_8 = 0xFFFF0011; // dclk_vop = 270MHz/(17+1) = 15MHz ダメ
+    *(unsigned int *)   CRU_CLKSEL_CON_8 = 0xFFFF4000; // select dclk_vop_frac_out
+    unsigned int*       CRU_CLKSEL_CON_9 = (unsigned int*)CRU_CLKSEL_CON9;
+    *(unsigned int *)   CRU_CLKSEL_CON_9 = 0x3AD803E8; // 15064/1000 = 15.064
 
     // Step.1 VOP init
     //unsigned int*       VOP_SYS_CTRL1 = (unsigned int*)VOP_LITE_SYS_CTRL1;
-    //*(unsigned int *)   VOP_SYS_CTRL1 = 0x00000003; // ???
+    //*(unsigned int *)   VOP_SYS_CTRL1 = 0x00000000; // Default:0
     //unsigned int*       VOP_SYS_CTRL2 = (unsigned int*)VOP_LITE_SYS_CTRL2;
-    //*(unsigned int *)   VOP_SYS_CTRL2 = 0x00000018; // ???
-
+    //*(unsigned int *)   VOP_SYS_CTRL2 = 0x00006000; // Default: 0b 0110 0000 0000 0000
+    
     // HP, VP
     unsigned int*       VOP_DSP_HTOTAL_HS_END = (unsigned int*)VOP_LITE_DSP_HTOTAL_HS_END;
     *(unsigned int *)   VOP_DSP_HTOTAL_HS_END = 0x02800028; // h_total: 640, hs_end: 40
@@ -113,41 +118,79 @@ int hello_world (int argc, char * const argv[])
     unsigned int*       VOP_DSP_HACT_ST_END =   (unsigned int*)VOP_LITE_DSP_HACT_ST_END;
     *(unsigned int *)   VOP_DSP_HACT_ST_END =   0x00500230; // hact_st: 80, hact_end:560
     //*(unsigned int *)   VOP_DSP_HACT_ST_END =   0x001001F0; // hact_st: 16, hact_end:496
+
     unsigned int*       VOP_DSP_VTOTAL_VS_END = (unsigned int*)VOP_LITE_DSP_VTOTAL_VS_END;
+    //*(unsigned int *)   VOP_DSP_VTOTAL_VS_END = 0x01FB0003; // v_total: 507, vs_end: 3
     *(unsigned int *)   VOP_DSP_VTOTAL_VS_END = 0x01FE0003; // v_total: 510, vs_end: 3
     unsigned int*       VOP_DSP_VACT_ST_END =   (unsigned int*)VOP_LITE_DSP_VACT_ST_END;
+    //*(unsigned int *)   VOP_DSP_VACT_ST_END =   0x000F01EF; // vact_st: 15, vact_end: 495
     *(unsigned int *)   VOP_DSP_VACT_ST_END =   0x001201F2; // vact_st: 18, vact_end: 498
 
     // Step.2 Background Display
     unsigned int*       VOP_DSP_CTRL0 = (unsigned int*)VOP_LITE_DSP_CTRL0;
-    *(unsigned int *)   VOP_DSP_CTRL0 = 0x00002001; // 正しいぽい雰囲気
+    *(unsigned int *)   VOP_DSP_CTRL0 = 0x00002001; // Select dclk_div sclk_div
+    //*(unsigned int *)   VOP_DSP_CTRL0 = 0x00000001; // 
     unsigned int*       VOP_DSP_CTRL2 = (unsigned int*)VOP_LITE_DSP_CTRL2;
-    *(unsigned int *)   VOP_DSP_CTRL2 = 0x00010040; // 正しいぽい雰囲気
-
+    //*(unsigned int *)   VOP_DSP_CTRL2 = 0x00020100; // Parallel 16bit RGB565
+    *(unsigned int *)   VOP_DSP_CTRL2 = 0x00010140; // Parallel 18bit RGB666
     unsigned int*       VOP_DSP_BG =    (unsigned int*)VOP_LITE_DSP_BG;
-    *(unsigned int *)   VOP_DSP_BG =    0x000000FF; // Black
+    *(unsigned int *)   VOP_DSP_BG =    0x00000000; // Black
 
     // Step.3 Win1
+    unsigned int*       VOP_WIN0_CTRL0 = (unsigned int*)VOP_LITE_WIN0_CTRL0;
+    *(unsigned int *)   VOP_WIN0_CTRL0 = 0x00041001; // RB swap
+/*
     unsigned int*       VOP_WIN1_CTRL0 = (unsigned int*)VOP_LITE_WIN1_CTRL0;
-    *(unsigned int *)   VOP_WIN1_CTRL0 = 0x00000201; // AXI master read outstanding???
+    *(unsigned int *)   VOP_WIN1_CTRL0 = 0x00000001; // ARGB or RGB 888 ??? <- BINGO!!!
+    // *(unsigned int *)   VOP_WIN1_CTRL0 = 0x00002001; // ARGB or RGB 888 ??? <- BINGO!!!
     //unsigned int*       VOP_WIN1_CTRL1 = (unsigned int*)VOP_LITE_WIN1_CTRL1;
-    //*(unsigned int *)   VOP_WIN1_CTRL1 = 0x00000000; // ???
-    unsigned int*       VOP_WIN1_VIR = (unsigned int*)VOP_LITE_WIN1_VIR;
-    *(unsigned int *)   VOP_WIN1_VIR = 0x0001E0; // 480 px
+    // *(unsigned int *)   VOP_WIN1_CTRL1 = 0x00000000; // ???
+*/
+    unsigned int*       VOP_WIN0_YRGB_MST0 = (unsigned int*)VOP_LITE_WIN0_YRGB_MST0;
+    *(unsigned int *)   VOP_WIN0_YRGB_MST0 = 0x00c00800; // framebuffer address
+    unsigned int*       VOP_WIN0_VIR = (unsigned int*)VOP_LITE_WIN0_VIR;
+    *(unsigned int *)   VOP_WIN0_VIR = 0x0000F0; // 480 px 正しいぽい
+    //*(unsigned int *)   VOP_WIN0_VIR = 0x0001E0; // 480 px 正しいぽい
+    unsigned int*       VOP_WIN0_ACT_INFO = (unsigned int*)VOP_LITE_WIN0_ACT_INFO;
+    *(unsigned int *)   VOP_WIN0_ACT_INFO = 0x01DF01DF; // 479 479
+    unsigned int*       VOP_WIN0_DSP_INFO = (unsigned int*)VOP_LITE_WIN0_DSP_INFO;
+    *(unsigned int *)   VOP_WIN0_DSP_INFO = 0x01DF01DF; // 479 479
+    unsigned int*       VOP_WIN0_DSP_ST = (unsigned int*)VOP_LITE_WIN0_DSP_ST;
+    *(unsigned int *)   VOP_WIN0_DSP_ST = 0x00120050; // 18px 80px
+    //*(unsigned int *)   VOP_WIN0_DSP_ST = 0x000F0050; // 15px 80px
+    unsigned int*       VOP_WIN0_COLOR_KEY = (unsigned int*)VOP_LITE_WIN0_COLOR_KEY;
+    *(unsigned int *)   VOP_WIN0_COLOR_KEY = 0x1000000; // 機能した
+
+/*
     unsigned int*       VOP_WIN1_MST = (unsigned int*)VOP_LITE_WIN1_MST;
     *(unsigned int *)   VOP_WIN1_MST = 0x00c00800; // framebuffer address
+    unsigned int*       VOP_WIN1_VIR = (unsigned int*)VOP_LITE_WIN1_VIR;
+    *(unsigned int *)   VOP_WIN1_VIR = 0x0001E0; // 480 px 正しいぽい
     unsigned int*       VOP_WIN1_DSP_INFO = (unsigned int*)VOP_LITE_WIN1_DSP_INFO;
-    *(unsigned int *)   VOP_WIN1_DSP_INFO = 0x01DF01DF; // 479
+    *(unsigned int *)   VOP_WIN1_DSP_INFO = 0x01DF01DF; // 479 479
+    // *(unsigned int *)   VOP_WIN1_DSP_INFO = 0x018F018F; // 399 399
+    // *(unsigned int *)   VOP_WIN1_DSP_INFO = 0x01DF018F; // 399 399
     unsigned int*       VOP_WIN1_DSP_ST = (unsigned int*)VOP_LITE_WIN1_DSP_ST;
-    *(unsigned int *)   VOP_WIN1_DSP_ST = 0x00000050; // 16px
-    //unsigned int*       VOP_WIN1_ALPHA_CTRL = (unsigned int*)VOP_LITE_WIN1_ALPHA_CTRL;
-    //*(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000FF3; // 01
+    *(unsigned int *)   VOP_WIN1_DSP_ST = 0x00120050; // 18px 80px
 
-    // フレームバッファはST7701Sが決め打ちで持ってるのではないか。それならデータシートの対応解像度の記述の仕方も納得。
+    unsigned int*       VOP_WIN1_COLOR_KEY = (unsigned int*)VOP_LITE_WIN1_COLOR_KEY;
+    *(unsigned int *)   VOP_WIN1_COLOR_KEY = 0x1000000; // 機能した
+    unsigned int*       VOP_WIN1_ALPHA_CTRL = (unsigned int*)VOP_LITE_WIN1_ALPHA_CTRL;
+    *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000000; //
+    // *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000001; // 表示が消える
+    // *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000FF1; // ~~にじまないし~~加算もされないけど黒が赤になる
+    // *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000FF3; // 黒が透過する？そしてBG黒でバグる
+    // *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000FF7; // 黒が赤になって加算される
+    // *(unsigned int *)   VOP_WIN1_ALPHA_CTRL = 0x00000FFF; // 黒が赤になって加算される
+    //unsigned int*       VOP_BCSH_CTRL = (unsigned int*)VOP_LITE_BCSH_CTRL;
+    // *(unsigned int *)   VOP_BCSH_CTRL = 0x00000003; // BT.709 BCSH有効化すると何も表示されなくなる
+*/
 
     // Done!
     unsigned int*       VOP_REG_CFG_DONE = (unsigned int*)VOP_LITE_REG_CFG_DONE;
-    *(unsigned int *)   VOP_REG_CFG_DONE = 0xFFFF0025; // Win0 は Disable
+    *(unsigned int *)   VOP_REG_CFG_DONE = 0xFFFF0023; // Win0 only 
+    //*(unsigned int *)   VOP_REG_CFG_DONE = 0xFFFF0027; // All
+
 
 
     // 1. Set GPIO direction
@@ -198,8 +241,8 @@ int hello_world (int argc, char * const argv[])
     sspi_9bit(COMM, 0x01); // Software Reset
     sspi_9bit(COMM, 0x11); // Sleep Out
 
-    //sspi_9bit(COMM, 0x3A); // COLMOD
-    // param
+    sspi_9bit(COMM, 0x3A); // COLMOD
+    sspi_9bit(DATA, 0x50); // 16bit color
     //sspi_9bit(DATA, 0x70); // 24bit color
 
     zatsuDelay(1000);
@@ -217,14 +260,18 @@ int hello_world (int argc, char * const argv[])
     sspi_9bit(DATA, 0x00); // no extra line
 
     sspi_9bit(COMM, 0xC1); // PORCTRL: Porch Control
+    //sspi_9bit(DATA, 0x0F); // VBP: 15なのでは???
+    //sspi_9bit(DATA, 0x0C); // VFP: 12なのでは???
     sspi_9bit(DATA, 0x0D); // VBP: 13 ... 15なのでは???
     sspi_9bit(DATA, 0x02); // VFP: 2 ... 12なのでは???
 
-    // SCNL == NL + VBP + VFP == 480 + 80 + 80 == 640
+    // SCNL == NL + VBP + VFP == 480 + 13 + 2 == 495
+    // SCNL == NL + VBP + VFP == 480 + 15 + 12 == 507
 
     sspi_9bit(COMM, 0xC2); // INVSET: Inversion selection & Frame Rate Control
     sspi_9bit(DATA, 0x21); // NLINV[2:0] 0x21 == 0b00100001, 2dot
     sspi_9bit(DATA, 0x08); // RTNI[4:0] 0x8 == 0b1000, PCLK == (8 * 16) + 512 == 640
+    //sspi_9bit(DATA, 0x00); // RTNI[4:0] 0x8 == 0b1000, PCLK == (0 * 16) + 512 == 512
     // RTNI: Minimum number of pclk in each line
 
     //sspi_9bit(COMM, 0xC3); // RGBCTRL
@@ -431,6 +478,9 @@ int hello_world (int argc, char * const argv[])
     sspi_9bit(DATA, 0x00); // default
     sspi_9bit(DATA, 0x00); // disable BKx
 
+    // NormalDisplayModeOn
+    sspi_9bit(COMM, 0x13);
+
     // 12.2.24 Display On
     sspi_9bit(COMM, 0x29);
 
@@ -448,7 +498,7 @@ int hello_world (int argc, char * const argv[])
         }else{
             *(unsigned int *)GPIO_0_DAT = 0x100000;    // OFF
         }
-
+/*
         if(flag==0){
             *(unsigned int *)   VOP_DSP_BG = 0x00FFFFFF; // White
         }else if(flag==1){
@@ -464,10 +514,11 @@ int hello_world (int argc, char * const argv[])
         }else if(flag==6){
             *(unsigned int *)   VOP_DSP_BG = 0x00FFFF00; // Cyan
         }else if(flag==7){
-            *(unsigned int *)   VOP_DSP_BG = 0x00FFFFFF; // Black
+            // *(unsigned int *)   VOP_DSP_BG = 0x00040404; // Black これが限界…
+            *(unsigned int *)   VOP_DSP_BG = 0x00000000; // Black
         }
-
-        zatsuDelay(100*MEGA);
+*/
+        zatsuDelay(30*MEGA);
 
         flag++;
 
@@ -492,3 +543,4 @@ int hello_world (int argc, char * const argv[])
 
 // 12.2.24 Display OFF
 //sspi_9bit(COMM, 0x28);
+
